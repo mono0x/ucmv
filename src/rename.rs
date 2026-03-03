@@ -1,39 +1,29 @@
-use std::collections::HashMap;
 use std::path::PathBuf;
 use walkdir::WalkDir;
 
 use crate::norm::{Form, convert};
 
 pub struct RenameOp {
-    pub from: PathBuf,
-    pub to: PathBuf,
+    pub dir: PathBuf,
+    pub from: std::ffi::OsString,
+    pub to: std::ffi::OsString,
 }
 
 pub fn collect_ops(paths: &[PathBuf], form: &Form, recursive: bool) -> Vec<RenameOp> {
     let max_depth = if recursive { usize::MAX } else { 1 };
     let mut ops = Vec::new();
-    // Maps original parent path -> renamed parent path.
-    let mut prefix_map: HashMap<PathBuf, PathBuf> = HashMap::new();
 
     for path in paths {
         for entry in WalkDir::new(path)
             .min_depth(1)
             .max_depth(max_depth)
-            .sort_by_file_name()
+            .contents_first(true)
         {
             let entry = match entry {
                 Ok(e) => e,
                 Err(_) => continue,
             };
-            let original = entry.into_path();
-
-            // Remap parent if it was renamed.
-            let from = match original.parent().and_then(|p| prefix_map.get(p)) {
-                Some(new_parent) => new_parent.join(original.file_name().unwrap()),
-                None => original.clone(),
-            };
-
-            let file_name = match from.file_name().and_then(|s| s.to_str()) {
+            let file_name = match entry.file_name().to_str() {
                 Some(s) => s,
                 None => continue,
             };
@@ -41,9 +31,12 @@ pub fn collect_ops(paths: &[PathBuf], form: &Form, recursive: bool) -> Vec<Renam
             if converted == file_name {
                 continue;
             }
-            let to = from.parent().unwrap_or(&from).join(&converted);
-            prefix_map.insert(original, to.clone());
-            ops.push(RenameOp { from, to });
+            let dir = entry.path().parent().unwrap_or(entry.path()).to_path_buf();
+            ops.push(RenameOp {
+                dir,
+                from: entry.file_name().to_owned(),
+                to: converted.into(),
+            });
         }
     }
 
@@ -59,8 +52,10 @@ fn same_inode(a: &std::path::Path, b: &std::path::Path) -> bool {
 }
 
 pub fn check_op(op: &RenameOp) -> anyhow::Result<()> {
-    if op.to.exists() && !same_inode(&op.from, &op.to) {
-        anyhow::bail!("destination already exists: {}", op.to.display());
+    let from = op.dir.join(&op.from);
+    let to = op.dir.join(&op.to);
+    if to.exists() && !same_inode(&from, &to) {
+        anyhow::bail!("destination already exists: {}", to.display());
     }
     Ok(())
 }
@@ -70,16 +65,15 @@ pub fn execute_op(op: &RenameOp) -> anyhow::Result<()> {
 
     // On APFS, NFC and NFD names resolve to the same inode, so rename(nfd, nfc) is a no-op.
     // Use a temporary file as an intermediate step, following the same approach as convmv.
-    if same_inode(&op.from, &op.to) {
-        let dir = op.from.parent().unwrap_or(std::path::Path::new("."));
+    if same_inode(&op.dir.join(&op.from), &op.dir.join(&op.to)) {
         let tmp = (1u32..)
-            .map(|i| dir.join(format!("ucmvtmp{i}")))
+            .map(|i| op.dir.join(format!("ucmvtmp{i}")))
             .find(|p| !p.exists())
             .unwrap();
-        std::fs::rename(&op.from, &tmp)?;
-        std::fs::rename(&tmp, &op.to)?;
+        std::fs::rename(op.dir.join(&op.from), &tmp)?;
+        std::fs::rename(&tmp, op.dir.join(&op.to))?;
     } else {
-        std::fs::rename(&op.from, &op.to)?;
+        std::fs::rename(op.dir.join(&op.from), op.dir.join(&op.to))?;
     }
 
     Ok(())

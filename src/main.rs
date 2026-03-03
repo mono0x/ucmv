@@ -21,7 +21,11 @@ fn run(
     }
 
     for op in &ops {
-        println!("{} -> {}", op.from.display(), op.to.display());
+        println!(
+            "{} -> {}",
+            op.dir.join(&op.from).display(),
+            op.dir.join(&op.to).display()
+        );
         if let Err(e) = check_op(op) {
             eprintln!("Error: {e}");
         }
@@ -107,12 +111,13 @@ mod tests {
         fs::write(&nfc_path, "nfc content").unwrap();
 
         // On macOS, NFC and NFD resolve to the same inode, so there is no conflict to test.
+        let op = rename::RenameOp {
+            dir: dir.path().to_path_buf(),
+            from: format!("{GA_NFD}.txt").into(),
+            to: format!("{GA_NFC}.txt").into(),
+        };
         #[cfg(not(target_os = "macos"))]
         {
-            let op = rename::RenameOp {
-                from: nfd_path.clone(),
-                to: nfc_path.clone(),
-            };
             let result = execute_op(&op);
             assert!(result.is_err(), "expected error on conflict");
             assert_eq!(fs::read_to_string(&nfc_path).unwrap(), "nfc content");
@@ -121,10 +126,6 @@ mod tests {
         #[cfg(target_os = "macos")]
         {
             // On macOS, NFC and NFD share the same inode, so the rename succeeds without conflict.
-            let op = rename::RenameOp {
-                from: nfd_path.clone(),
-                to: nfc_path.clone(),
-            };
             let result = execute_op(&op);
             assert!(result.is_ok());
         }
