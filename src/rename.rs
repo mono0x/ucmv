@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 use walkdir::WalkDir;
 
-use crate::norm::{convert, Form};
+use crate::norm::{Form, convert};
 
 pub struct RenameOp {
     pub from: PathBuf,
