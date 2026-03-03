@@ -1,6 +1,6 @@
 [package]
 name = "ucmv"
-version = "0.20260303.9"
+version = "0.20260304.12"
 edition = "2024"
 
 [dependencies]
