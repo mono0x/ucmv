@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::path::PathBuf;
 use walkdir::WalkDir;
 
@@ -11,14 +12,28 @@ pub struct RenameOp {
 pub fn collect_ops(paths: &[PathBuf], form: &Form, recursive: bool) -> Vec<RenameOp> {
     let max_depth = if recursive { usize::MAX } else { 1 };
     let mut ops = Vec::new();
+    // Maps original parent path -> renamed parent path.
+    let mut prefix_map: HashMap<PathBuf, PathBuf> = HashMap::new();
 
     for path in paths {
-        for entry in WalkDir::new(path).min_depth(1).max_depth(max_depth) {
+        for entry in WalkDir::new(path)
+            .min_depth(1)
+            .max_depth(max_depth)
+            .sort_by_file_name()
+        {
             let entry = match entry {
                 Ok(e) => e,
                 Err(_) => continue,
             };
-            let file_name = match entry.file_name().to_str() {
+            let original = entry.into_path();
+
+            // Remap parent if it was renamed.
+            let from = match original.parent().and_then(|p| prefix_map.get(p)) {
+                Some(new_parent) => new_parent.join(original.file_name().unwrap()),
+                None => original.clone(),
+            };
+
+            let file_name = match from.file_name().and_then(|s| s.to_str()) {
                 Some(s) => s,
                 None => continue,
             };
@@ -26,15 +41,9 @@ pub fn collect_ops(paths: &[PathBuf], form: &Form, recursive: bool) -> Vec<Renam
             if converted == file_name {
                 continue;
             }
-            let to = entry
-                .path()
-                .parent()
-                .unwrap_or(entry.path())
-                .join(&converted);
-            ops.push(RenameOp {
-                from: entry.into_path(),
-                to,
-            });
+            let to = from.parent().unwrap_or(&from).join(&converted);
+            prefix_map.insert(original, to.clone());
+            ops.push(RenameOp { from, to });
         }
     }
 

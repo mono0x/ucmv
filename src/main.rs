@@ -208,4 +208,54 @@ mod tests {
         assert_eq!(names.len(), 1);
         assert!(names[0].contains(GA_NFD) || !names[0].contains(GA_NFC));
     }
+
+    // -r: NFD subdirectory name must be renamed to NFC
+    #[test]
+    fn recursive_renames_nfd_subdirectory() {
+        let dir = tempdir();
+        let sub = dir.path().join(format!("{GA_NFD}dir"));
+        fs::create_dir(&sub).unwrap();
+        fs::write(sub.join("file.txt"), "").unwrap();
+
+        run(&[dir.path().to_path_buf()], Form::Nfc, true, true).unwrap();
+
+        let top_names = ls(dir.path());
+        assert_eq!(top_names.len(), 1);
+        let dir_name = &top_names[0];
+        assert!(
+            unicode_normalization::is_nfc_quick(dir_name.chars()) != IsNormalized::No,
+            "expected NFC directory name, got: {dir_name:?}"
+        );
+        // The file inside must still exist.
+        let new_sub = dir.path().join(dir_name);
+        let file_names = ls(&new_sub);
+        assert_eq!(file_names, vec!["file.txt"]);
+    }
+
+    // -r: NFD subdirectory and NFD file inside must both be renamed to NFC
+    #[test]
+    fn recursive_renames_nfd_subdirectory_and_file() {
+        let dir = tempdir();
+        let sub = dir.path().join(format!("{GA_NFD}dir"));
+        fs::create_dir(&sub).unwrap();
+        fs::write(sub.join(format!("{GA_NFD}.txt")), "").unwrap();
+
+        run(&[dir.path().to_path_buf()], Form::Nfc, true, true).unwrap();
+
+        let top_names = ls(dir.path());
+        assert_eq!(top_names.len(), 1);
+        let dir_name = &top_names[0];
+        assert!(
+            unicode_normalization::is_nfc_quick(dir_name.chars()) != IsNormalized::No,
+            "expected NFC directory name, got: {dir_name:?}"
+        );
+        let new_sub = dir.path().join(dir_name);
+        let file_names = ls(&new_sub);
+        assert_eq!(file_names.len(), 1);
+        let file_name = &file_names[0];
+        assert!(
+            unicode_normalization::is_nfc_quick(file_name.chars()) != IsNormalized::No,
+            "expected NFC filename, got: {file_name:?}"
+        );
+    }
 }
