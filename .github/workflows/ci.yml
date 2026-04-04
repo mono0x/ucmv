@@ -32,7 +32,10 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: ./.github/actions/setup-mise
+      - uses: SocketDev/action@2d3f25590c6ed6ba11a9a14c064d962a3a04698f # v1.3.1
+        with:
+          mode: firewall-free
       - name: Add Rust target
         run: rustup target add ${{ matrix.target }}
       - run: |
-          cargo test --target ${{ matrix.target }}
+          sfw cargo test --target ${{ matrix.target }}
