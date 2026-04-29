@@ -13,7 +13,7 @@ fn run(
     notest: bool,
     recursive: bool,
 ) -> anyhow::Result<()> {
-    let ops = collect_ops(paths, &form, recursive);
+    let ops = collect_ops(paths, form, recursive);
 
     if ops.is_empty() {
         println!("No files to rename.");
@@ -21,11 +21,7 @@ fn run(
     }
 
     for op in &ops {
-        println!(
-            "{} -> {}",
-            op.dir.join(&op.from).display(),
-            op.dir.join(&op.to).display()
-        );
+        println!("{} -> {}", op.src_path().display(), op.dst_path().display());
         if let Err(e) = check_op(op) {
             eprintln!("Error: {e}");
         }
@@ -72,6 +68,17 @@ mod tests {
             .collect();
         names.sort();
         names
+    }
+
+    fn assert_normalized(name: &str, form: Form) {
+        let result = match form {
+            Form::Nfc => unicode_normalization::is_nfc_quick(name.chars()),
+            Form::Nfd => unicode_normalization::is_nfd_quick(name.chars()),
+        };
+        assert!(
+            result != IsNormalized::No,
+            "expected {form:?} name, got: {name:?}"
+        );
     }
 
     // dry-run: files must not be renamed
@@ -141,11 +148,7 @@ mod tests {
 
         let names = ls(dir.path());
         assert_eq!(names.len(), 1);
-        let name = &names[0];
-        assert!(
-            unicode_normalization::is_nfc_quick(name.chars()) != IsNormalized::No,
-            "expected NFC filename, got: {name:?}"
-        );
+        assert_normalized(&names[0], Form::Nfc);
     }
 
     // --notest: NFC filename must be renamed to NFD
@@ -158,11 +161,7 @@ mod tests {
 
         let names = ls(dir.path());
         assert_eq!(names.len(), 1);
-        let name = &names[0];
-        assert!(
-            unicode_normalization::is_nfd_quick(name.chars()) != IsNormalized::No,
-            "expected NFD filename, got: {name:?}"
-        );
+        assert_normalized(&names[0], Form::Nfd);
     }
 
     // --notest: already-normalized files must be left unchanged
@@ -188,11 +187,7 @@ mod tests {
 
         let names = ls(&sub);
         assert_eq!(names.len(), 1);
-        let name = &names[0];
-        assert!(
-            unicode_normalization::is_nfc_quick(name.chars()) != IsNormalized::No,
-            "expected NFC filename, got: {name:?}"
-        );
+        assert_normalized(&names[0], Form::Nfc);
     }
 
     // without -r: files in subdirectories must not be renamed
@@ -223,10 +218,7 @@ mod tests {
         let top_names = ls(dir.path());
         assert_eq!(top_names.len(), 1);
         let dir_name = &top_names[0];
-        assert!(
-            unicode_normalization::is_nfc_quick(dir_name.chars()) != IsNormalized::No,
-            "expected NFC directory name, got: {dir_name:?}"
-        );
+        assert_normalized(dir_name, Form::Nfc);
         // The file inside must still exist.
         let new_sub = dir.path().join(dir_name);
         let file_names = ls(&new_sub);
@@ -246,17 +238,10 @@ mod tests {
         let top_names = ls(dir.path());
         assert_eq!(top_names.len(), 1);
         let dir_name = &top_names[0];
-        assert!(
-            unicode_normalization::is_nfc_quick(dir_name.chars()) != IsNormalized::No,
-            "expected NFC directory name, got: {dir_name:?}"
-        );
+        assert_normalized(dir_name, Form::Nfc);
         let new_sub = dir.path().join(dir_name);
         let file_names = ls(&new_sub);
         assert_eq!(file_names.len(), 1);
-        let file_name = &file_names[0];
-        assert!(
-            unicode_normalization::is_nfc_quick(file_name.chars()) != IsNormalized::No,
-            "expected NFC filename, got: {file_name:?}"
-        );
+        assert_normalized(&file_names[0], Form::Nfc);
     }
 }
