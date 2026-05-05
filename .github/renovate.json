@@ -3,9 +3,6 @@
   "extends": [
     "config:recommended"
   ],
-  "schedule": [
-    "before 4am on Monday"
-  ],
   "minimumReleaseAge": "2 days",
   "packageRules": [
     {
@@ -16,6 +13,9 @@
       "matchUpdateTypes": [
         "minor",
         "patch"
+      ],
+      "schedule": [
+        "on monday"
       ]
     },
     {
@@ -26,6 +26,9 @@
       "matchUpdateTypes": [
         "minor",
         "patch"
+      ],
+      "schedule": [
+        "on the first day of the month"
       ]
     }
   ]
