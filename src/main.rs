@@ -91,7 +91,7 @@ mod tests {
 
         let names = ls(dir.path());
         assert_eq!(names.len(), 1);
-        assert!(names[0].contains(GA_NFD) || !names[0].contains(GA_NFC));
+        assert!(!names[0].contains(GA_NFC));
     }
 
     // dry-run: must not panic even when a conflict exists
@@ -202,7 +202,7 @@ mod tests {
 
         let names = ls(&sub);
         assert_eq!(names.len(), 1);
-        assert!(names[0].contains(GA_NFD) || !names[0].contains(GA_NFC));
+        assert!(!names[0].contains(GA_NFC));
     }
 
     // -r: NFD subdirectory name must be renamed to NFC
