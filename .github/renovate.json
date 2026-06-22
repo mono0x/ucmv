@@ -4,6 +4,10 @@
     "config:recommended"
   ],
   "minimumReleaseAge": "2 days",
+  "group": {
+    "commitMessageTopic": "{{#if upgrades.[1]}}{{{groupName}}}{{else}}{{{depName}}}{{/if}}",
+    "commitMessageExtra": "{{#unless upgrades.[1]}}to {{#if isPinDigest}}{{{newDigestShort}}}{{else}}{{#if isMajor}}{{prettyNewMajor}}{{else}}{{#if isSingleVersion}}{{prettyNewVersion}}{{else}}{{#if newValue}}{{{newValue}}}{{else}}{{{newDigestShort}}}{{/if}}{{/if}}{{/if}}{{/if}}{{/unless}}"
+  },
   "packageRules": [
     {
       "matchManagers": [
@@ -22,7 +26,7 @@
       "matchManagers": [
         "github-actions"
       ],
-      "groupName": "actions",
+      "groupName": "GitHub Actions",
       "matchUpdateTypes": [
         "minor",
         "patch"
