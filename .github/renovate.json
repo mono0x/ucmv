@@ -19,7 +19,7 @@
         "patch"
       ],
       "schedule": [
-        "on monday"
+        "on the first day of the month"
       ]
     },
     {
