@@ -6,6 +6,9 @@
   "timezone": "Asia/Tokyo",
   "minimumReleaseAge": "2 days",
   "osvVulnerabilityAlerts": true,
+  "schedule": [
+    "* * 1 * *"
+  ],
   "platformAutomerge": false,
   "automergeStrategy": "squash",
   "group": {
@@ -32,9 +35,6 @@
       "matchUpdateTypes": [
         "minor",
         "patch"
-      ],
-      "schedule": [
-        "on the first day of the month"
       ]
     },
     {
@@ -45,9 +45,6 @@
       "matchUpdateTypes": [
         "minor",
         "patch"
-      ],
-      "schedule": [
-        "on the first day of the month"
       ]
     }
   ]
