@@ -82,7 +82,9 @@ pub fn execute_op(op: &RenameOp) -> anyhow::Result<()> {
         let tmp = (1u32..)
             .map(|i| op.dir.join(format!("ucmvtmp{i}")))
             .find(|p| !p.exists())
-            .unwrap();
+            .ok_or_else(|| {
+                anyhow::anyhow!("no available temporary filename in {}", op.dir.display())
+            })?;
         std::fs::rename(&from, &tmp)?;
         std::fs::rename(&tmp, &to)?;
     } else {
