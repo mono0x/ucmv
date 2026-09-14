@@ -47,7 +47,7 @@ fn main() -> anyhow::Result<()> {
 }
 
 #[cfg(test)]
-#[allow(
+#[expect(
     clippy::unwrap_used,
     reason = "Test setup and assertions should fail immediately on errors."
 )]
