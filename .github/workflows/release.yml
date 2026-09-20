@@ -9,7 +9,8 @@ concurrency:
 jobs:
   release:
     if: github.ref == 'refs/heads/main'
-    runs-on: macos-15
+    # The Apple SDK is needed to cross-compile the macOS targets.
+    runs-on: macos-latest
     permissions:
       contents: write
     env:
