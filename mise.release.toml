@@ -1,0 +1,4 @@
+[tools]
+goreleaser = "2.18.2"
+zig = "0.15.2"
+"github:rust-cross/cargo-zigbuild" = "0.23.4"
