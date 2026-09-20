@@ -1,6 +1,6 @@
 [package]
 name = "ucmv"
-version = "0.20260608.32"
+version = "0.20260920.64"
 edition = "2024"
 
 [lints.rust]
