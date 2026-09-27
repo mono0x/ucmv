@@ -34,6 +34,12 @@ Rename files recursively:
 ucmv --nfc --notest -r ./photos
 ```
 
+## Development
+
+Install the tools and Git hook with `mise install` and `hk install`. Run
+`hk check --all` to check the repository, or `hk fix` to format changed files.
+Run `cargo clippy --all-targets --all-features -- -D warnings` separately.
+
 ## Releasing
 
 Run the Release workflow manually on `main`. It updates `Cargo.toml` and

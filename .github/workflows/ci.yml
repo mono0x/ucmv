@@ -18,10 +18,9 @@ jobs:
         with:
           version: 2026.8.15
       - run: |
-          rustup component add clippy
-          rustup component add rustfmt
+          rustup component add clippy rustfmt
       - run: |
-          cargo fmt --check
+          hk check --all
       - run: |
           cargo clippy --all-targets --all-features -- -D warnings
 

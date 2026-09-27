@@ -14,7 +14,7 @@ See `README.md`. The CLI surface is defined in `src/cli.rs` (clap derive); the `
 
 ## Architecture (non-obvious points)
 
-Modules under `src/` (`cli.rs`, `norm.rs`, `rename.rs`, `main.rs`) are small enough that reading them is faster than reading a description. The points below are the things that are *not* obvious from the code alone.
+Modules under `src/` (`cli.rs`, `norm.rs`, `rename.rs`, `main.rs`) are small enough that reading them is faster than reading a description. The points below are the things that are _not_ obvious from the code alone.
 
 ### macOS APFS same-inode quirk (load-bearing)
 
