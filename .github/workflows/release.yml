@@ -6,6 +6,8 @@ concurrency:
   group: release
   cancel-in-progress: false
 
+permissions: {}
+
 jobs:
   release:
     if: github.ref == 'refs/heads/main'
@@ -18,7 +20,9 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          # The version number uses the total commit count from git rev-list.
           fetch-depth: 0
+          persist-credentials: false
       - uses: ./.github/actions/setup-mise
       - run: goreleaser check
       - name: Update version and create tag
@@ -33,7 +37,10 @@ jobs:
           git add Cargo.toml Cargo.lock
           git commit -m "Bump version to ${version}"
           git tag "v${version}"
+          gh auth setup-git
           git push --atomic origin HEAD:main "v${version}"
+        env:
+          GH_TOKEN: ${{ github.token }}
       - name: Release
         run: goreleaser release --clean
         env:
