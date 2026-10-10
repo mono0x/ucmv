@@ -9,7 +9,12 @@ local linters = new Mapping<String, Step> {
   }
   ["pkl"] = Builtins.pkl
   ["pkl-format"] = Builtins.pkl_format
-  ["zizmor"] = Builtins.zizmor
+  ["jactionlint"] {
+    glob = List(".github/workflows/*.{yml,yaml}", "**/action.{yml,yaml}")
+    batch = true
+    diagnostic_format = "sarif"
+    check = "mise exec -- jactionlint --format sarif {{files}}"
+  }
 }
 
 hooks {
