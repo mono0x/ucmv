@@ -42,12 +42,14 @@ Run `cargo clippy --all-targets --all-features -- -D warnings` separately.
 
 ## Releasing
 
-Run the Release workflow manually on `main`. It updates `Cargo.toml` and
+Run the Tag workflow manually on `main`. It updates `Cargo.toml` and
 `Cargo.lock`, commits the version change, and creates a `v0.YYYYMMDD.N` tag.
 The date uses Asia/Tokyo, and `N` is the commit count before the version bump.
-GoReleaser builds binaries for Linux x86_64 and macOS x86_64/ARM64 in a reusable
-workflow without write access to the repository, and a separate job publishes them
-with checksums and GitHub-generated release notes.
+It pushes as a GitHub App (`RELEASE_APP_CLIENT_ID` variable and
+`RELEASE_APP_PRIVATE_KEY` secret) with Contents read and write permission, so the
+tag triggers the Release workflow. GoReleaser builds binaries for Linux x86_64 and
+macOS x86_64/ARM64 in a reusable workflow without write access to the repository,
+and a separate job publishes them with checksums and GitHub-generated release notes.
 
 To build release artifacts locally without publishing (requires macOS and Xcode
 Command Line Tools):
