@@ -15,3 +15,6 @@ archives:
 
 changelog:
   use: github-native
+
+checksum:
+  name_template: checksums.txt
