@@ -57,3 +57,7 @@ MISE_ENV=release mise exec -- goreleaser release --snapshot --clean
 ```
 
 Artifacts are written to `dist/` using GoReleaser's default file names.
+
+Release binaries are [reproducible](https://reproducible-builds.org/). To verify
+a release, check out its tag and build it as above; the SHA-256 digests of the
+binaries in `dist/` should match the entries in the release's `checksums.txt`.

@@ -9,6 +9,10 @@ builds:
     flags:
       - --release
       - --locked
+    env:
+      # Strip the machine-specific registry path from embedded panic locations so that release binaries are reproducible.
+      # Replace with `trim-paths` once the pinned Rust is 1.101 or later.
+      - RUSTFLAGS=--remap-path-prefix={{ envOrDefault "CARGO_HOME" (print .Env.HOME "/.cargo") }}=/cargo
 
 archives:
   - formats: [binary]
