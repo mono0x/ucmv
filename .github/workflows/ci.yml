@@ -57,3 +57,12 @@ jobs:
         run: rustup target add ${{ matrix.target }}
       - run: |
           cargo test --target ${{ matrix.target }}
+
+  tag:
+    if: github.event_name == 'push'
+    needs: [lint, test]
+    permissions:
+      contents: read
+    uses: ./.github/workflows/tag.yml
+    secrets:
+      RELEASE_APP_PRIVATE_KEY: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}

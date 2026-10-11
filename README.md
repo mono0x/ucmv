@@ -45,8 +45,9 @@ Run `cargo clippy --all-targets --all-features -- -D warnings` separately.
 Run the Bump version workflow manually on `main`. It updates `Cargo.toml` and
 `Cargo.lock` to `0.YYYYMMDD.N` and opens a release pull request with auto-merge
 enabled. The date uses Asia/Tokyo, and `N` is the commit count before the version
-bump. Once CI passes and the pull request is merged, the Tag workflow creates the
-`v0.YYYYMMDD.N` tag, which triggers the Release workflow. Both workflows act as a
+bump. Once CI passes, the pull request is merged. When CI then passes on `main`,
+it calls the Tag workflow, which creates the `v0.YYYYMMDD.N` tag on that exact
+commit and so triggers the Release workflow. Both workflows act as a
 GitHub App (`RELEASE_APP_CLIENT_ID` variable and `RELEASE_APP_PRIVATE_KEY` secret)
 with Contents and Pull requests read and write permission, because events caused
 by `GITHUB_TOKEN` do not trigger workflows. GoReleaser builds binaries for Linux x86_64 and

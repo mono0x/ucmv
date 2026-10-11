@@ -1,14 +1,10 @@
 name: Tag
+# Called from CI after all checks pass on main, so that only the exact commit that passed CI is tagged even if the release pull request was behind main when merged.
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - Cargo.toml
-
-concurrency:
-  group: tag
-  cancel-in-progress: false
+  workflow_call:
+    secrets:
+      RELEASE_APP_PRIVATE_KEY:
+        required: true
 
 permissions: {}
 
