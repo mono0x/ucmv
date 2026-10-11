@@ -18,7 +18,8 @@ archives:
   - formats: [binary]
 
 changelog:
-  use: github-native
+  # The Release workflow publishes with GitHub-generated release notes; the build job has no token for the API.
+  disable: true
 
 checksum:
   name_template: checksums.txt

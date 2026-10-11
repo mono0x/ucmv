@@ -45,8 +45,9 @@ Run `cargo clippy --all-targets --all-features -- -D warnings` separately.
 Run the Release workflow manually on `main`. It updates `Cargo.toml` and
 `Cargo.lock`, commits the version change, and creates a `v0.YYYYMMDD.N` tag.
 The date uses Asia/Tokyo, and `N` is the commit count before the version bump.
-GoReleaser builds binaries for Linux x86_64 and macOS x86_64/ARM64, then publishes
-them with checksums and GitHub-generated release notes.
+GoReleaser builds binaries for Linux x86_64 and macOS x86_64/ARM64 in a reusable
+workflow without write access to the repository, and a separate job publishes them
+with checksums and GitHub-generated release notes.
 
 To build release artifacts locally without publishing (requires macOS and Xcode
 Command Line Tools):
@@ -61,3 +62,11 @@ Artifacts are written to `dist/` using GoReleaser's default file names.
 Release binaries are [reproducible](https://reproducible-builds.org/). To verify
 a release, check out its tag and build it as above; the SHA-256 digests of the
 binaries in `dist/` should match the entries in the release's `checksums.txt`.
+
+Release binaries also carry [SLSA Build Level 3](https://slsa.dev/spec/v1.0/levels#build-l3)
+provenance. Verify a downloaded binary with:
+
+```sh
+gh attestation verify <file> --repo mono0x/ucmv \
+  --signer-workflow mono0x/ucmv/.github/workflows/release-build.yml
+```
