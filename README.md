@@ -42,7 +42,7 @@ Run `cargo clippy --all-targets --all-features -- -D warnings` separately.
 
 ## Releasing
 
-Run the Tag workflow manually on `main`. It updates `Cargo.toml` and
+Run the Bump version workflow manually on `main`. It updates `Cargo.toml` and
 `Cargo.lock`, commits the version change, and creates a `v0.YYYYMMDD.N` tag.
 The date uses Asia/Tokyo, and `N` is the commit count before the version bump.
 It pushes as a GitHub App (`RELEASE_APP_CLIENT_ID` variable and
