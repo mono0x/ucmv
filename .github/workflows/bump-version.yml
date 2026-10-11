@@ -27,28 +27,32 @@ jobs:
         with:
           version: 2026.10.6
           install_args: rust
-      # Tags pushed with GITHUB_TOKEN do not trigger workflows, so push as the app to start the Release workflow.
+      # Pushes and merges made with GITHUB_TOKEN do not trigger workflows, so act as the app to run CI on the pull request and the Tag workflow after the merge.
       - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         id: app-token
         with:
           client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
           private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
           permission-contents: write
-      - name: Update version and create tag
+          permission-pull-requests: write
+      - name: Open a release pull request
         run: |
           date=$(TZ=Asia/Tokyo date +%Y%m%d)
           count=$(git rev-list --count HEAD)
           version="0.${date}.${count}"
+          branch="release/v${version}"
           sed -i "s/^version = .*/version = \"${version}\"/" Cargo.toml
           cargo update --workspace
           user_id=$(gh api "/users/${APP_SLUG}[bot]" --jq .id)
           git config user.name "${APP_SLUG}[bot]"
           git config user.email "${user_id}+${APP_SLUG}[bot]@users.noreply.github.com"
+          git switch -c "${branch}"
           git add Cargo.toml Cargo.lock
           git commit -m "Bump version to ${version}"
-          git tag "v${version}"
           gh auth setup-git
-          git push --atomic origin HEAD:main "v${version}"
+          git push origin "${branch}"
+          gh pr create --base main --head "${branch}" --title "Bump version to ${version}" --body "Merging this pull request tags \`v${version}\` and starts the Release workflow."
+          gh pr merge "${branch}" --auto --squash
         env:
           APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
