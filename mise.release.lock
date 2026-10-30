@@ -2,6 +2,29 @@
 
 lockfile_version = 3
 
+[[tools."github:crate-ci/cargo-release"]]
+version = "1.1.7"
+backend = "github:crate-ci/cargo-release"
+specifiers = ["1.1.7"]
+
+[tools."github:crate-ci/cargo-release"."platforms.linux-x64"]
+checksum = "sha256:9e04ae8b068f52788ce301cabaf34c4b3f0c945793d02c88442b561073f6bdb1"
+url = "https://github.com/crate-ci/cargo-release/releases/download/v1.1.7/cargo-release-v1.1.7-x86_64-unknown-linux-musl.tar.gz"
+url_api = "https://api.github.com/repos/crate-ci/cargo-release/releases/assets/662700706"
+provenance = "github-attestations"
+
+[tools."github:crate-ci/cargo-release"."platforms.macos-arm64"]
+checksum = "sha256:39e1121c5e9671b0ff4703692b7ce2d9576c540118869091b7ad85a15187d129"
+url = "https://github.com/crate-ci/cargo-release/releases/download/v1.1.7/cargo-release-v1.1.7-aarch64-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/crate-ci/cargo-release/releases/assets/662705905"
+provenance = "github-attestations"
+
+[tools."github:crate-ci/cargo-release"."platforms.macos-x64"]
+checksum = "sha256:9abd1bb84a581e982e4ae00a4c4413c14657b4cba8cd76b0eb003e00fe361a7a"
+url = "https://github.com/crate-ci/cargo-release/releases/download/v1.1.7/cargo-release-v1.1.7-x86_64-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/crate-ci/cargo-release/releases/assets/662704962"
+provenance = "github-attestations"
+
 [[tools."github:rust-cross/cargo-zigbuild"]]
 version = "0.23.4"
 backend = "github:rust-cross/cargo-zigbuild"

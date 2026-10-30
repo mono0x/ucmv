@@ -42,17 +42,24 @@ Run `cargo clippy --all-targets --all-features -- -D warnings` separately.
 
 ## Releasing
 
-Run the Bump version workflow manually on `main`. It updates `Cargo.toml` and
-`Cargo.lock` to `0.YYYYMMDD.N` and opens a release pull request with auto-merge
-enabled. The date uses Asia/Tokyo, and `N` is the commit count before the version
-bump. Once CI passes, the pull request is merged. When CI then passes on `main`,
-it calls the Tag workflow, which creates the `v0.YYYYMMDD.N` tag on that exact
-commit and so triggers the Release workflow. Both workflows act as a
-GitHub App (`RELEASE_APP_CLIENT_ID` variable and `RELEASE_APP_PRIVATE_KEY` secret)
-with Contents and Pull requests read and write permission, because events caused
-by `GITHUB_TOKEN` do not trigger workflows. GoReleaser builds binaries for Linux x86_64 and
-macOS x86_64/ARM64 in a reusable workflow without write access to the repository,
-and a separate job publishes them with checksums and GitHub-generated release notes.
+Run the **Release** workflow manually on `main` after its push CI run succeeds.
+It uses cargo-release to update `Cargo.toml` and `Cargo.lock` to
+`0.YYYYMMDD.<run_number>`, using the initial workflow run date in Asia/Tokyo.
+The version commit and tag are pushed atomically to `main`. The workflow uses
+`GITHUB_TOKEN`, which must be allowed to push to `main` under the repository's
+branch rules. No GitHub App is required.
+
+The reusable build workflow checks out the tag and builds binaries for Linux
+x86_64 and macOS x86_64/ARM64 without write access to the repository. A separate
+job verifies checksums, uploads the binaries to a draft release, and publishes
+it with GitHub-generated release notes after attestation succeeds.
+
+If CI has not succeeded, rerun after it completes. If `main` has advanced before
+the version commit is pushed, start a new workflow run. Use **Re-run failed jobs**
+to retry a failed build or publication. Artifacts are retained for seven days;
+use **Re-run all jobs** to rebuild the existing tag if they have expired.
+Retries can replace draft artifacts and leave published releases intact.
+Source or workflow fixes require a new run from the corrected `main`.
 
 To build release artifacts locally without publishing (requires macOS and Xcode
 Command Line Tools):
